@@ -1,0 +1,6 @@
+/var/log/@@PROG_PREFIX@@helper.log {
+    daily
+    rotate 7
+    missingok
+    compress
+}

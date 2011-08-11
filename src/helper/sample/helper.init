@@ -1,0 +1,77 @@
+#! /bin/sh
+#
+# chkconfig: - 99 10
+# description: process monitoring daemon.
+# processname: @@@PROG_PREFIX@helper
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+prefix=@@PREFIX@@
+prog_prefix=@@PROG_PREFIX@@
+sbindir=${prefix}/sbin
+sysconfdir=/etc
+
+program_name=@@PROG_PREFIX@@helper
+
+[ -f ${sbindir}/${program_name} ] || exit 0
+
+[ -f ${sysconfdir}/helper.conf ] || exit 0
+
+RETVAL=0
+
+start() {
+        # Start daemons.
+        if [ -n "`/sbin/pidof ${program_name}`" ]; then
+                echo -n $"${program_name}: already running"
+                return 1
+        fi
+        echo -n $"Starting ${program_name}: "
+        daemon ${sbindir}/${program_name} -c ${sysconfdir}/helper.conf
+        RETVAL=$?
+        usleep 100000
+        if [ -z "`/sbin/pidof ${program_name}`" ]; then
+                RETVAL=1
+        fi
+        [ $RETVAL -ne 0 ] && failure $"${program_name} startup"
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/${program_name} && success $"${program_name} startup"
+        echo
+        return $RETVAL
+}
+stop() {
+        # Stop daemons.
+        echo -n $"Stopping ${program_name}: "
+        killproc ${program_name}
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/${program_name}
+        echo
+        return $RETVAL
+}
+restart() {
+        stop
+        start
+}       
+
+# See how we were called.
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        status)
+                status ${program_name}
+                ;;
+        restart)
+                restart
+                ;;
+        condrestart)
+                [ -f /var/lock/subsys/${program_name} ] && restart
+                ;;
+        *)
+                echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+                exit 1
+esac
+
+exit $?
