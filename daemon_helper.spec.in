@@ -1,8 +1,8 @@
-%define version @@VERSION@@
+%define version @VERSION@
 %define release 1
 
 Summary:	A tool monitoring daemon process
-Name:		@@PACKAGE@@
+Name:		@PACKAGE@
 Version:	%{version}
 Release:	%{release}
 Source0:	%{name}-%{version}.tar.gz
